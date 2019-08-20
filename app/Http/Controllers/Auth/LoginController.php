@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use App\Pelanggan;
+use Illuminate\Http\Request;
+Use Session;
 
 class LoginController extends Controller
 {
@@ -36,4 +39,29 @@ class LoginController extends Controller
     {
         $this->middleware('guest')->except('logout');
     }
+
+    public function loginPelanggan(){
+        return view('fn.login_pelanggan');
+    }
+
+    public function authPelanggan(Request $request){
+        $pelanggan = Pelanggan::where('email',$request->email)->where('password',$request->password)->get();
+        if(count($pelanggan) > 0){
+            session(['login' => true, 'id' => $pelanggan[0]->id, 'message' => 'login sukses']);
+            return redirect('indexPelanggan');
+        } else {
+            session::flash('message','login gagal');            
+            return redirect('loginPelanggan');
+        }
+    }
+
+    public function indexPelanggan(){
+        if(session('login')){
+            return view('fn.index');
+        } else {
+            return redirect('loginPelanggan');
+        }
+    }
+
+
 }

@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
 
+use Illuminate\Http\Request;
+use App\Pelanggan;
+Use Session;
+
+
 class RegisterController extends Controller
 {
     /*
@@ -68,5 +73,30 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+    }
+
+    public function registerPelanggan(){
+        return view('fn.register_pelanggan');
+    }
+
+    public function storeDataPelanggan(Request $request){
+        $pelanggan = Pelanggan::where('email',$request->email)->get();
+        if(count($pelanggan) > 0){
+            session::flash('message','email pernah terdaftar');            
+            return redirect('registerPelanggan');
+        } else {
+            
+            $pelanggan = new Pelanggan();
+            $pelanggan->email = $request->email;
+            $pelanggan->nama = $request->nama;
+            $pelanggan->password = $request->password;
+            $pelanggan->nohp = $request->no_hp;
+            $pelanggan->address = $request->alamat;
+            $pelanggan->save();
+
+            print_r($pelanggan->id);
+            session(['login' => true, 'id' => $pelanggan->id, 'message' => 'register sukses']);
+            return redirect('indexPelanggan');
+        }
     }
 }
